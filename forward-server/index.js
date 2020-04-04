@@ -25,6 +25,11 @@ app.post("/geodata", async (req, res) => {
   return res.send(data);
 });
 
+app.post("/report", async (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+});
+
 app.listen(port, () =>
   console.log(`Forward server listening at http://localhost:${port}`)
 );
