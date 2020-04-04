@@ -4,6 +4,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { RectButton, ScrollView } from "react-native-gesture-handler";
 import { useLocation } from "../hooks/useLocation";
+import * as Updates from 'expo-updates';
 
 export default function LinksScreen() {
   const [location] = useLocation({ watch: true });
@@ -30,6 +31,13 @@ export default function LinksScreen() {
         icon="ios-chatboxes"
         label="Ask a question on the forums"
         onPress={() => WebBrowser.openBrowserAsync("https://forums.expo.io")}
+        isLastOption
+      />
+
+      <OptionButton
+        icon="ios-chatboxes"
+        label="Reload the app"
+        onPress={() => Updates.reloadAsync()}
         isLastOption
       />
       <View>
