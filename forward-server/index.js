@@ -4,6 +4,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const csv = require("csvtojson");
+const { v1 } = require("uuid");
+const axios = require("axios");
 
 const { getToken, getSystemInfo, getNearbyStops } = require("./traffic");
 
@@ -42,6 +44,7 @@ const trafficMiddleware = async (req, res, next) => {
 
 app.post("/geodata", async (req, res) => {
   // console.log(req.body);
+  console.log("Serving geodata");
   const { city = "gothenburg" } = req.body;
   const data = await csv()
     .fromFile(path.resolve(__dirname, `data/${city}.csv`))
@@ -57,12 +60,34 @@ app.post("/geodata", async (req, res) => {
 });
 
 app.post("/report", async (req, res) => {
-  console.log(req.body);
-  res.sendStatus(200);
+  console.log("Serving, report");
+  const { location } = req.body;
+
+  if (location) {
+    const { coords } = location;
+
+    await axios
+      .post(process.env.CITY_LIVE_ENDPOINT, {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        id: v1(),
+      })
+      .catch(console.log);
+
+    const { data } = await axios.post(process.env.CITY_LIVE_ENDPOINT, {
+      scope: "all",
+    });
+
+    console.log(data);
+
+    return res.send([]);
+  }
+  return res.send([]);
 });
 
 app.get("/trafficHealth", trafficMiddleware, async (req, res) => {
   // console.log(req.traffikToken);
+  console.log("Serving traffic health");
   const { access_token } = req.traffikToken;
   const trafficSystemInfo = await getSystemInfo(access_token).catch(() => ({
     error: "Something went wrong...",
@@ -73,6 +98,7 @@ app.get("/trafficHealth", trafficMiddleware, async (req, res) => {
 const cache = {};
 
 app.post("/trafficStopsNearby", trafficMiddleware, async (req, res) => {
+  console.log("Serving traffic stops nearby");
   const { access_token } = req.traffikToken;
   const { latitude, longitude } = req.body;
 
