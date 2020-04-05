@@ -1,52 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
-import { StyleSheet, View, Dimensions } from "react-native";
-import axios from "axios";
+import { StyleSheet, View, Dimensions, Text } from "react-native";
+import { StopMarker } from "./StopMarker";
 import { useLocation } from "../hooks/useLocation";
+import { useGeoData } from "../hooks/useGeoData";
+import { useNearbyStops } from "../hooks/useNearbyStops";
+import { useStreamLocation } from "../hooks/useStreamLocation";
 
 export function Map() {
-  const [points, setPoints] = useState([]);
   const [location, error] = useLocation({ watch: true });
+  const geoDataPoints = useGeoData();
+  const stops = useNearbyStops(
+    location?.coords ?? { latitude: 57.7118511, longitude: 11.9699815 }
+  );
 
-  useEffect(() => {
-    if (!error) {
-      // send location to forward-server and from there to our backend
-      axios
-        .post("http://192.168.0.22:9000/report", {
-          data: JSON.stringify({ location }),
-        })
-        .catch(() => console.log("Failed to report"));
-    }
-  }, [location]);
+  useStreamLocation({ location, error });
 
-  useEffect(() => {
-    let source;
-    async function loadData() {
-      source = axios.CancelToken.source();
-      const { data } = await axios
-        .post("http://192.168.0.22:9000/geodata", {
-          data: JSON.stringify({ city: "gothenburg" }),
-          CancelToken: source.token,
-        })
-        .catch((e) => {
-          console.log(e);
-          return [];
-        });
-
-      setPoints(data);
-    }
-    loadData();
-
-    return () => {
-      if (source.cancel) {
-        source.cancel("Request cancelled");
-      }
-    };
-  }, []);
-
-  if (points.length === 0) {
-    return null;
-  }
+  const hasPoints = !!geoDataPoints.length;
 
   return (
     <View style={styles.container}>
@@ -63,14 +33,23 @@ export function Map() {
         minZoomLevel={10}
         maxZoomLevel={20}
       >
-        <MapView.Heatmap
-          points={points}
-          opacity={0.65}
-          radius={20}
-          maxIntensity={100}
-          gradientSmoothing={10}
-          heatmapMode={"POINTS_DENSITY"}
-        />
+        {stops.map(({ id, lat, lon }) => (
+          <StopMarker
+            key={id}
+            latitude={parseFloat(lat)}
+            longitude={parseFloat(lon)}
+          />
+        ))}
+        {hasPoints && (
+          <MapView.Heatmap
+            points={geoDataPoints}
+            opacity={0.65}
+            radius={20}
+            maxIntensity={100}
+            gradientSmoothing={10}
+            heatmapMode={"POINTS_DENSITY"}
+          />
+        )}
       </MapView>
     </View>
   );

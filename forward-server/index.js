@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const csv = require("csvtojson");
 
-const { getToken, getSystemInfo } = require("./traffic");
+const { getToken, getSystemInfo, getNearbyStops } = require("./traffic");
 
 const app = express();
 const port = process.env.PORT || 9000;
@@ -36,11 +36,12 @@ const trafficMiddleware = async (req, res, next) => {
     token.setToken(newToken);
     req.traffikToken = newToken;
   }
-  console.log("x", req.traffikToken);
+
   return next();
 };
 
 app.post("/geodata", async (req, res) => {
+  // console.log(req.body);
   const { city = "gothenburg" } = req.body;
   const data = await csv()
     .fromFile(path.resolve(__dirname, `data/${city}.csv`))
@@ -61,9 +62,36 @@ app.post("/report", async (req, res) => {
 });
 
 app.get("/trafficHealth", trafficMiddleware, async (req, res) => {
-  console.log(req.traffikToken);
-  const info = await getSystemInfo(req.traffikToken.access_token);
-  console.log(info);
+  // console.log(req.traffikToken);
+  const { access_token } = req.traffikToken;
+  const trafficSystemInfo = await getSystemInfo(access_token).catch(() => ({
+    error: "Something went wrong...",
+  }));
+  res.send({ trafficSystemInfo });
+});
+
+const cache = {};
+
+app.post("/trafficStopsNearby", trafficMiddleware, async (req, res) => {
+  const { access_token } = req.traffikToken;
+  const { latitude, longitude } = req.body;
+
+  if (cache[`${latitude}.${longitude}`]) {
+    const cached = cache[`${latitude}.${longitude}`];
+    return res.send(cached);
+  }
+
+  const stops = await getNearbyStops(access_token, latitude, longitude).catch(
+    () => ({
+      nearbyStopLocations: [],
+      error: "Something went wrong...",
+    })
+  );
+
+  if (!stops.error) {
+    cache[`${latitude}.${longitude}`] = stops;
+  }
+  return res.send(stops);
 });
 
 app.listen(port, () => console.log(`Forward server listening at ${port}`));
