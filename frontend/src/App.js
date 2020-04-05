@@ -1,6 +1,9 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import { trafficHealth } from "./api";
+import "./App.css";
+
+trafficHealth();
 
 function App() {
   return (
