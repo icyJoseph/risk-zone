@@ -3,7 +3,7 @@
 -export([start/0]).
 -export([test/1]).
 -export([add/3]).
-
+-export([nice/1]).
 -export([init/0]).
 
 start() -> 
@@ -60,36 +60,19 @@ add(Id, Lng, Lat) ->
 	[Ln|_] = binary:split(Lng, <<".">>),
 	[La|_] = binary:split(Lat, <<".">>),
 	ets:insert(db, {Id, {Lng,Lat}, {Ln, La}}),
-	ok.
-	% receive
-	% after 10000 ->
-	% 	ets:match_delete(db, {Id, '_'})
-	% end.
+	ok,
+	receive
+	after 10000 ->
+		ets:match_delete(db, {Id, '_', '_'})
+	end.
 
-
-
-
-
-
-
-
-
-
-
-% fetch(Data, List) -> fetch(Data, List, "[").
-% fetch(_, [], Re) -> Re ++ "]";
-% fetch([Lng1, Lng2, Lat1, Lat2], [{_, {Ln, La}}|Rest], Re) when 
-% 	(Lng1 < Ln andalso
-% 	Lng2 > Ln andalso 
-% 	Lat1 < La andalso 
-% 	Lat2 > La) ->
-% 		fetch([Lng1, Lng2, Lat1, Lat2], Rest, Re ++ "{" ++ io_lib:format("~.5f",[Ln]) ++ ":" ++ io_lib:format("~.5f",[La]) ++ "}");
-% fetch(Data, [_|Rest], Re) -> fetch(Data, Rest, Re).
 
 test(0) -> ok;
 test(N) ->
-	Lng = list_to_binary(io_lib:format("~.5f",[57.7 + (rand:uniform(9999) * 0.00001)])),
-	Lat = list_to_binary(io_lib:format("~.5f",[11.9 + (rand:uniform(9999) * 0.00001)])),
+	Lng1 = 57.7118511 - 0.00005,
+	Lat1 = 11.9699815 - 0.00005,
+	Lng = list_to_binary(io_lib:format("~.7f",[Lng1 + (rand:uniform(999) * 0.00000001)])),
+	Lat = list_to_binary(io_lib:format("~.7f",[Lat1 + (rand:uniform(999) * 0.00000001)])),
 	database ! {<<"put">>, N, Lng, Lat},
 	test(N-1).
 

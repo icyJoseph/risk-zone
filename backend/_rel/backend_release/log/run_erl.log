@@ -1,8 +1,8 @@
-run_erl [40845] Sat Apr  4 12:23:09 2020
+run_erl [44895] Sat Apr  4 16:32:00 2020
 Args before exec of shell:
-run_erl [40845] Sat Apr  4 12:23:09 2020
+run_erl [44895] Sat Apr  4 16:32:00 2020
 argv[0] = sh
-run_erl [40845] Sat Apr  4 12:23:09 2020
+run_erl [44895] Sat Apr  4 16:32:00 2020
 argv[1] = -c
-run_erl [40845] Sat Apr  4 12:23:09 2020
+run_erl [44895] Sat Apr  4 16:32:00 2020
 argv[2] = exec "/Users/tom/work/risk-zone/backend/_rel/backend_release/bin/backend_release" "console" '' 
