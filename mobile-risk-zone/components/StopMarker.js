@@ -1,19 +1,21 @@
-import React, { useState } from "react";
-import { Image, Text } from "react-native";
+import React from "react";
 import { Marker } from "react-native-maps";
 
+import { Image, StyleSheet } from "react-native";
+
+const styles = StyleSheet.create({
+  logo: {
+    width: 40,
+    height: 40,
+  },
+});
+
 export function StopMarker({ latitude, longitude }) {
-  const [trackViewChanges, setTrackViewChanges] = useState(true);
   return (
-    <Marker
-      coordinate={{ latitude, longitude }}
-      tracksViewChanges={trackViewChanges}
-    >
+    <Marker coordinate={{ latitude, longitude }}>
       <Image
-        onLoad={() => setTrackViewChanges(false)}
-        fadeDuration={0}
-        source={{ uri: "https://freesvg.org/img/Trolleybus.png" }}
-        style={{ height: 20, width: 20 }}
+        style={styles.logo}
+        source={require("../assets/images/busicon.png")}
       />
     </Marker>
   );

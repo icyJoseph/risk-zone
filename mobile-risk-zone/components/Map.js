@@ -1,6 +1,6 @@
 import React from "react";
-import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
-import { StyleSheet, View, Dimensions, Text } from "react-native";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import { StyleSheet, View, Dimensions } from "react-native";
 import { StopMarker } from "./StopMarker";
 import { useLocation } from "../hooks/useLocation";
 import { useGeoData } from "../hooks/useGeoData";
