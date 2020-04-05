@@ -49,11 +49,13 @@ app.post("/geodata", async (req, res) => {
   const data = await csv()
     .fromFile(path.resolve(__dirname, `data/${city}.csv`))
     .then((data) =>
-      data.map(({ weight, latitude, longitude }) => ({
-        weight: parseInt(weight),
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-      }))
+      data
+        .map(({ weight, latitude, longitude }) => ({
+          weight: parseInt(weight),
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        }))
+        .filter(({ weight }) => weight >= 50)
     );
 
   return res.send(data);

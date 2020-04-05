@@ -56,7 +56,7 @@ export function Map() {
         {!!geoDataPoints.length && showGeoData && (
           <MapView.Heatmap
             points={geoDataPoints}
-            opacity={0.65}
+            opacity={0.3}
             radius={20}
             maxIntensity={100}
             gradientSmoothing={10}
@@ -67,7 +67,7 @@ export function Map() {
           <MapView.Heatmap
             points={live}
             opacity={0.85}
-            radius={50}
+            radius={30}
             maxIntensity={100}
             gradientSmoothing={100}
             heatmapMode={"POINTS_DENSITY"}
