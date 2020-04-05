@@ -60,7 +60,7 @@ app.post("/geodata", async (req, res) => {
 });
 
 app.post("/report", async (req, res) => {
-  console.log("Serving, report");
+  console.log("Received report");
   const { location } = req.body;
 
   if (location) {
@@ -68,8 +68,8 @@ app.post("/report", async (req, res) => {
 
     await axios
       .post(process.env.CITY_LIVE_ENDPOINT, {
-        lat: coords.latitude,
-        lng: coords.longitude,
+        lat: `${coords.latitude}`,
+        lng: `${coords.longitude}`,
         id: v1(),
       })
       .catch(console.log);
@@ -78,9 +78,17 @@ app.post("/report", async (req, res) => {
       scope: "all",
     });
 
-    console.log(data);
+    const live = data
+      .split("}{")
+      .map((sub) =>
+        sub.replace("[", "").replace("]", "").replace("{", "").replace("}", "")
+      )
+      .map((sub) => {
+        const [latitude, longitude] = sub.split(":").map((x) => parseFloat(x));
+        return { latitude, longitude, weight: 100 };
+      });
 
-    return res.send([]);
+    return res.send(live);
   }
   return res.send([]);
 });
